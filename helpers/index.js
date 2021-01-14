@@ -17,9 +17,8 @@ export async function getPosts() {
 }
 
 export async function getPostBySlug(slug) {
-  const fileContent = await import(`../_posts/${slug}.md`);
+  const fileContent = await import(`../_posts/${slug[0]}.md`);
   const meta = matter(fileContent.default);
-  console.log(meta)
   return {
     title: meta.data.title,
     content: meta.content,

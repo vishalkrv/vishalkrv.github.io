@@ -1,37 +1,55 @@
-import { Flex, Text } from "@chakra-ui/react";
-import { useRouter } from "next/router";
+import { Flex, Text, Image, Box } from "@chakra-ui/react";
+// import {ReactMarkdown} from 'react-markdown';
+const ReactMarkdownWithHtml = require("react-markdown/with-html");
+import gfm from "remark-gfm";
 import Post from "../../layout/post";
 import { getPostBySlug, getPosts } from "../../helpers";
 
-export default function Blog(props) {
-  console.log(props);
+const renderers = {
+  image: ({ src, alt, title }) => {
+    return (
+      <Box boxSize="md">
+        <Image src={src} title={title} alt={alt} />
+      </Box>
+    );
+  },
+};
+
+export default function Blog({ title, content }) {
   return (
     <Post>
-      <Flex h="80%" justifyContent="center" alignItems="center">
-        <Text fontSize="6xl">Blogging with Post</Text>
+      <Flex
+        h="80%"
+        // justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+      >
+        <Text fontSize="6xl">{title}</Text>
+        <ReactMarkdownWithHtml
+          renderers={renderers}
+          plugins={[gfm]}
+          children={content}
+        ></ReactMarkdownWithHtml>
       </Flex>
     </Post>
   );
 }
 
-export async function getStaticProps(context) {
-  console.log("context===>", context);
+export async function getStaticProps({ params }) {
   return {
-    props: await getPostBySlug(context.params.slug),
+    props: await getPostBySlug(params.slug),
   };
 }
 
 export async function getStaticPaths() {
-  let paths = await getPosts();
-  console.log("paths===>", paths);
-  paths = paths.map((post) => {
+  let data = await getPosts();
+  const paths = data.map(({ slug }) => ({
     params: {
-      slug: post.slug;
-    }
-  });
-  console.log("pa===>", paths);
+      slug: [slug],
+    },
+  }));
   return {
-    paths: paths,
+    paths,
     fallback: false,
   };
 }
