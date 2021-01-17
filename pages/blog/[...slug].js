@@ -1,24 +1,9 @@
 import { Flex, Text, Image, Box } from "@chakra-ui/react";
-// import {ReactMarkdown} from 'react-markdown';
-const ReactMarkdownWithHtml = require("react-markdown/with-html");
+import ReactMarkdown from 'react-markdown';
 import gfm from "remark-gfm";
 import Post from "../../layout/post";
 import { getPostBySlug, getPosts } from "../../helpers";
-
-const renderers = {
-  table: (content) => {
-    return (
-      <div>Hello</div>
-    );
-  },
-  image: ({ src, alt, title }) => {
-    return (
-      <Box boxSize="md">
-        <Image src={src} title={title} alt={alt} />
-      </Box>
-    );
-  },
-};
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 
 export default function Blog({ title, content }) {
   return (
@@ -30,11 +15,12 @@ export default function Blog({ title, content }) {
         flexDirection="column"
       >
         <Text fontSize="6xl">{title}</Text>
-        <ReactMarkdownWithHtml
-          renderers={renderers}
+        <ReactMarkdown
+          renderers={ChakraUIRenderer()}
+          source={content}
           plugins={[gfm]}
-          children={content}
-        ></ReactMarkdownWithHtml>
+          escapeHtml={false}
+        ></ReactMarkdown>
       </Flex>
     </Post>
   );
