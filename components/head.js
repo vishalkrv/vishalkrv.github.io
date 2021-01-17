@@ -1,9 +1,19 @@
 import Head from "next/head";
-import { Flex, Link, Spacer, Text } from "@chakra-ui/react";
+import {
+  Flex,
+  Link,
+  Spacer,
+  Text,
+  IconButton,
+  useColorMode,
+} from "@chakra-ui/react";
+import { FaMoon, FaSun } from "react-icons/fa";
 import { useRouter } from "next/router";
 
 function Header({ title }) {
   const router = useRouter();
+  const { colorMode, toggleColorMode } = useColorMode();
+
   return (
     <>
       <Head>
@@ -29,6 +39,13 @@ function Header({ title }) {
         <Link ml="30px" onClick={() => router.push("/blog")}>
           Blog
         </Link>
+        <IconButton
+          ml={10}
+          icon={colorMode === "light" ? <FaMoon /> : <FaSun />}
+          onClick={toggleColorMode}
+          variant="ghost"
+          colorScheme={colorMode === "light" ? "gray" : "yellow"}
+        ></IconButton>
       </Flex>
     </>
   );

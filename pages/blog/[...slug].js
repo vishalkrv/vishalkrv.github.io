@@ -6,6 +6,11 @@ import Post from "../../layout/post";
 import { getPostBySlug, getPosts } from "../../helpers";
 
 const renderers = {
+  table: (content) => {
+    return (
+      <div>Hello</div>
+    );
+  },
   image: ({ src, alt, title }) => {
     return (
       <Box boxSize="md">
