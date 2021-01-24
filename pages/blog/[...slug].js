@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import gfm from "remark-gfm";
 import Post from "../../layout/post";
 import { getPostBySlug, getPosts } from "../../helpers";
-import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import ChakraUIRenderer from '../../helpers/renderer';
 
 export default function Blog({ title, content }) {
   return (

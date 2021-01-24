@@ -1,4 +1,4 @@
-import { Box, Flex, Text, List, ListItem } from "@chakra-ui/react";
+import { Box, Flex, Text, List, ListItem, SimpleGrid } from "@chakra-ui/react";
 import Posts from "../../layout/posts";
 import { getPosts } from "../../helpers";
 import Link from "next/link";
@@ -6,19 +6,17 @@ import Link from "next/link";
 export default function Blog({ posts }) {
   return (
     <Posts>
-      <Flex h="80%" justifyContent="center" alignItems="center">
-        <List spacing={5}>
-          {posts.map((post) => (
-            <ListItem key={post.title} cursor="pointer">
-              <Link href={`/blog/${encodeURIComponent(post.slug)}`}>
-                <Text fontSize="3xl" textAlign="left">
-                  {post.title}
-                </Text>
-              </Link>
-            </ListItem>
-          ))}
-        </List>
-      </Flex>
+      <SimpleGrid mt={10} pl={5} pr={5} minChildWidth={280} spacing={10}>
+        {posts.map((post) => (
+          <Box key={post.title} cursor="pointer" border="solid" borderRadius={4} p={5} h={150}>
+            <Link href={`/blog/${encodeURIComponent(post.slug)}`}>
+              <Text fontSize="2xl" textAlign="left">
+                {post.title}
+              </Text>
+            </Link>
+          </Box>
+        ))}
+      </SimpleGrid>
     </Posts>
   );
 }
