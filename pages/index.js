@@ -177,8 +177,8 @@ export default function Home() {
                           <Box as="span">
                             <Icon
                               as={cols.icon}
-                              w={6}
-                              h={6}
+                              w={5}
+                              h={5}
                               color={cols.color}
                               background={cols.background}
                             ></Icon>
