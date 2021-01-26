@@ -32,7 +32,7 @@ function Header({ title }) {
         pr={10}
       >
         <Text fontSize="2xl" fontWeight="700">
-          Blogging
+          Vishalkrv
         </Text>
         <Spacer></Spacer>
         <Link onClick={() => router.push("/")}>Home</Link>
