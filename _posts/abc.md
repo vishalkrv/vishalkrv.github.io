@@ -1,5 +1,6 @@
 ---
-title:  "ABC title is for testing"
+title:  "ABC title is for testings"
+date: 2020-01-10T08:06:25+06:00
 ---
 
 # h1 Heading 8-)

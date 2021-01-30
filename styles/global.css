@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400&display=swap');
+
 html,
 body,
 #__next {
@@ -6,6 +8,8 @@ body,
 button:focus {
   outline: 0 !important;
 }
+
+
 
 
 /* CSS DEBUGGER */

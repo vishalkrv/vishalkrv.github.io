@@ -31,9 +31,11 @@ function Header({ title }) {
         pl={10}
         pr={10}
       >
-        <Text fontSize="2xl" fontWeight="700">
-          Vishalkrv
-        </Text>
+        <Link onClick={() => router.push("/")}>
+          <Text fontSize="2xl" fontWeight="700">
+            Vishalkrv
+          </Text>
+        </Link>
         <Spacer></Spacer>
         <Link onClick={() => router.push("/")}>Home</Link>
         <Link ml="30px" onClick={() => router.push("/blog")}>
