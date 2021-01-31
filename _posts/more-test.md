@@ -1,6 +1,8 @@
 ---
 title:  "ABC title is for testing"
 date: 2020-08-08T08:06:25+06:00
+author:
+  name: Jessica Jonas
 ---
 
 # h1 Heading 8-)

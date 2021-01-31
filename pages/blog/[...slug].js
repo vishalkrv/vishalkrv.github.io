@@ -1,26 +1,47 @@
-import { Flex, Text, Image, Box } from "@chakra-ui/react";
-import ReactMarkdown from 'react-markdown';
+import { Flex, Text, Image, Box, Heading, Spacer } from "@chakra-ui/react";
+import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import Post from "../../layout/post";
 import { getPostBySlug, getPosts } from "../../helpers";
-import ChakraUIRenderer from '../../helpers/renderer';
+import ShareBtns from "../../components/share";
+import ChakraUIRenderer from "../../helpers/renderer";
 
-export default function Blog({ title, content }) {
+export default function Blog({ title, content, author, readTime, date }) {
+  const formatDate = (date) => {
+    const temp = new Date(date);
+    const month = temp.toString().slice(4, 7);
+    return `${month} ${temp.getDate()}`;
+  };
   return (
     <Post>
-      <Flex
-        h="80%"
-        // justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-      >
-        <Text fontSize="6xl">{title}</Text>
-        <ReactMarkdown
-          renderers={ChakraUIRenderer()}
-          source={content}
-          plugins={[gfm]}
-          escapeHtml={false}
-        ></ReactMarkdown>
+      <Flex alignItems="center" mt={10} flexDirection="column">
+        <Flex alignItems="flex-start" flexDirection="column" maxW={650}>
+          <Heading as="h1" fontSize="4xl">
+            {title}
+          </Heading>
+          <Text fontSize="lg" color="gray.500" mt={2}>
+            Regions will now only be required to meet three of the metrics, not
+            all four, to progress to Phase 2
+          </Text>
+          <Flex mt={5} w="100%">
+            <Flex flexDirection="column">
+              <Text>{author.name}</Text>
+              <Text fontSize="xs" color="gray.600" fontWeight="bold">
+                {formatDate(date)} - {readTime}
+              </Text>
+            </Flex>
+            <Spacer></Spacer>
+            <ShareBtns title="Hello" link="http://www.google.com"></ShareBtns>
+          </Flex>
+          <Box>
+            <ReactMarkdown
+              renderers={ChakraUIRenderer()}
+              source={content}
+              plugins={[gfm]}
+              escapeHtml={false}
+            ></ReactMarkdown>
+          </Box>
+        </Flex>
       </Flex>
     </Post>
   );

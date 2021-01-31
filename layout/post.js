@@ -5,7 +5,7 @@ export default function Post({ children, title }) {
   return (
     <Box h="100%">
       <Header title={title}></Header>
-      {children}
+      <Box pl={5} pr={5}>{children}</Box>
     </Box>
   );
 }
