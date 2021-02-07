@@ -6,7 +6,7 @@ author:
   name: Vishal Kumar Verma
 ---
 
-Hello World!!
+Hello World!
 
 This is my first blog
 
