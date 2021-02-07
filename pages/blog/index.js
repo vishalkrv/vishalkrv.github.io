@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import Calendar from "../../components/calendar";
 import Posts from "../../layout/posts";
-import { getPosts, getOrdinalNum } from "../../helpers";
+import { getPosts } from "../../helpers";
 import { BiTime } from "react-icons/bi";
 import Link from "next/link";
 
@@ -38,9 +38,8 @@ export default function Blog({ posts }) {
                         <Text ml={2}>{post.readTime}</Text>
                       </Flex>
                     </Flex>
-                    <Text fontSize="xs" color="gray.500">
-                      Some summary here Some summary here Some summary here Some
-                      summary here
+                    <Text fontSize="xs" color="gray.500" minW={380}>
+                      {post.subtitle}
                     </Text>
                   </Flex>
                 </Flex>

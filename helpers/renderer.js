@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Text,
   Code,
@@ -9,39 +9,52 @@ import {
   ListItem,
   Heading,
   Image,
-} from '@chakra-ui/react';
+  Table,
+  Alert,
+  Box,
+} from "@chakra-ui/react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { okaidia } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 function getCoreProps(props) {
-  return props['data-sourcepos']
-    ? { 'data-sourcepos': props['data-sourcepos'] }
+  return props["data-sourcepos"]
+    ? { "data-sourcepos": props["data-sourcepos"] }
     : {};
 }
 
 export const defaults = {
-  paragraph: props => {
+  paragraph: (props) => {
     const { children } = props;
-    return <Text mb={2}>{children}</Text>;
+    return <Text my={5}>{children}</Text>;
   },
-  emphasis: props => {
+  emphasis: (props) => {
     const { children } = props;
     return <Text as="em">{children}</Text>;
   },
-  blockquote: props => {
+  blockquote: (props) => {
     const { children } = props;
-    return <Code p={2}>{children}</Code>;
-  },
-  code: props => {
-    const { language, value } = props;
-    const className = language && `language-${language}`;
     return (
-      <pre {...getCoreProps(props)}>
-        <Code p={2} className={className || null}>
-          {value}
-        </Code>
-      </pre>
+      <Alert status="warning" variant="left-accent" borderRadius={4}>
+        {children}
+      </Alert>
     );
   },
-  delete: props => {
+  code: (props) => {
+    const { language, value } = props;
+    return (
+      <Box display="inline">
+        <SyntaxHighlighter
+          language={language}
+          wrapLines="true"
+          wrapLongLines="true"
+          style={okaidia}
+        >
+          {value}
+        </SyntaxHighlighter>
+      </Box>
+    );
+  },
+  delete: (props) => {
     const { children } = props;
     return <Text as="del">{children}</Text>;
   },
@@ -50,32 +63,33 @@ export const defaults = {
   img: Image,
   linkReference: Link,
   imageReference: Image,
-  text: props => {
+  table: Table,
+  text: (props) => {
     const { children } = props;
     return <Text as="span">{children}</Text>;
   },
-  list: props => {
+  list: (props) => {
     const { start, ordered, children, depth } = props;
     const attrs = getCoreProps(props);
     if (start !== null && start !== 1 && start !== undefined) {
       attrs.start = start.toString();
     }
-    let styleType = 'disc';
-    if (ordered) styleType = 'decimal';
-    if (depth === 1) styleType = 'circle';
+    let styleType = "disc";
+    if (ordered) styleType = "decimal";
+    if (depth === 1) styleType = "circle";
     return (
       <List
-        spacing={24}
-        as={ordered ? 'ol' : 'ul'}
+        as={ordered ? "ol" : "ul"}
+        spacing={1}
         styleType={styleType}
-        pl={4}
+        pl={5}
         {...attrs}
       >
         {children}
       </List>
     );
   },
-  listItem: props => {
+  listItem: (props) => {
     const { children, checked } = props;
     let checkbox = null;
     if (checked !== null && checked !== undefined) {
@@ -88,30 +102,34 @@ export const defaults = {
     return (
       <ListItem
         {...getCoreProps(props)}
-        listStyleType={checked !== null ? 'none' : 'inherit'}
+        listStyleType={checked !== null ? "none" : "inherit"}
       >
         {checkbox || children}
       </ListItem>
     );
   },
   definition: () => null,
-  heading: props => {
+  heading: (props) => {
     const { level, children } = props;
-    const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
+    const sizes = ["lg", "xl", "lg", "md", "sm", "xs"];
     return (
       <Heading
-        my={4}
+        my={2}
         as={`h${level}`}
-        size={sizes[`${level - 1}`]}
+        size={sizes[`${level}`]}
         {...getCoreProps(props)}
       >
         {children}
       </Heading>
     );
   },
-  inlineCode: props => {
+  inlineCode: (props) => {
     const { children } = props;
-    return <Code {...getCoreProps(props)}>{children}</Code>;
+    return (
+      <Code {...getCoreProps(props)} bg="none" color="purple.400">
+        {children}
+      </Code>
+    );
   },
 };
 
@@ -128,6 +146,7 @@ function ChakraUIRenderer(theme = defaults) {
     linkReference: theme.linkReference,
     imageReference: theme.imageReference,
     text: theme.text,
+    table: theme.table,
     list: theme.list,
     listItem: theme.listItem,
     definition: theme.definition,

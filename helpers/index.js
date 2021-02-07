@@ -13,6 +13,7 @@ export async function getPosts() {
     posts.push({
       slug: post.replace(".md", ""),
       title: meta.data.title,
+      subtitle:meta.data.subtitle,
       readTime: stats.text.replace(" read", ""),
       date: meta.data.date.toString(),
     });
@@ -26,9 +27,11 @@ export async function getPostBySlug(slug) {
   const stats = readingTime(meta.content);
   return {
     title: meta.data.title,
+    subtitle:meta.data.subtitle,
     content: meta.content,
     readTime: stats.text,
     author: meta.data.author,
+    slug:slug,
     date: meta.data.date.toString(),
   };
 }

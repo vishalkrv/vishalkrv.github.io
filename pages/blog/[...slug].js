@@ -1,4 +1,4 @@
-import { Flex, Text, Image, Box, Heading, Spacer } from "@chakra-ui/react";
+import { Flex, Text, Box, Heading, Spacer } from "@chakra-ui/react";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import Post from "../../layout/post";
@@ -6,7 +6,7 @@ import { getPostBySlug, getPosts } from "../../helpers";
 import ShareBtns from "../../components/share";
 import ChakraUIRenderer from "../../helpers/renderer";
 
-export default function Blog({ title, content, author, readTime, date }) {
+export default function Blog({ title, subtitle, content, author, readTime, date, slug }) {
   const formatDate = (date) => {
     const temp = new Date(date);
     const month = temp.toString().slice(4, 7);
@@ -20,10 +20,9 @@ export default function Blog({ title, content, author, readTime, date }) {
             {title}
           </Heading>
           <Text fontSize="lg" color="gray.500" mt={2}>
-            Regions will now only be required to meet three of the metrics, not
-            all four, to progress to Phase 2
+            {subtitle}
           </Text>
-          <Flex mt={5} w="100%">
+          <Flex mt={5} w="100%" minW={450}>
             <Flex flexDirection="column">
               <Text>{author.name}</Text>
               <Text fontSize="xs" color="gray.600" fontWeight="bold">
@@ -31,9 +30,9 @@ export default function Blog({ title, content, author, readTime, date }) {
               </Text>
             </Flex>
             <Spacer></Spacer>
-            <ShareBtns title="Hello" link="http://www.google.com"></ShareBtns>
+            <ShareBtns title={title} link={`http://vishalkrv.com/blog/${slug}`}></ShareBtns>
           </Flex>
-          <Box>
+          <Box mt={5}>
             <ReactMarkdown
               renderers={ChakraUIRenderer()}
               source={content}
