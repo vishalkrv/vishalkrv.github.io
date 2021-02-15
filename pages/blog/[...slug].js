@@ -10,7 +10,8 @@ export default function Blog({ title, subtitle, content, author, readTime, date,
   const formatDate = (date) => {
     const temp = new Date(date);
     const month = temp.toString().slice(4, 7);
-    return `${month} ${temp.getDate()}`;
+    const year = temp.getFullYear();
+    return `${month} ${temp.getDate()} ${year} `;
   };
   return (
     <Post title={title} description={subtitle}>

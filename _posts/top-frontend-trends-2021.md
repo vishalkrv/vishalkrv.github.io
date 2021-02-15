@@ -5,7 +5,7 @@ date: 2021-02-15T08:06:25+06:00
 author:
   name: Vishal Kumar Verma
 ---
-**Namaste Developers!**👋
+**Namaste Developers!** 👋
 
 As a web developer with years of experience, I’ve seen a lot of trends come and go. But in 2021, things are evolving faster than ever. If you’re building modern websites or web apps, you must stay ahead of the curve. So today, I’ll share the Top Front-End Trends you should watch out for in 2021.
 
@@ -48,6 +48,7 @@ export default App;
 - Frameworks like Next.js make it SEO-friendly.
 - Reusable components save development time.
 
+
 ## 2. TailwindCSS: Utility-First CSS Framework 🌟
 
 Let’s be honest: writing CSS can get messy. That’s why TailwindCSS is a game-changer. It’s a utility-first CSS framework that makes designing UIs super fast and clean.
@@ -74,6 +75,7 @@ What’s happening here?
 - Easily customizable with the *tailwind.config.js* file.
 
 If you haven’t tried it yet, give TailwindCSS a shot. You’ll love it! 🎨
+
 
 ## 3. Next.js: The Future of React 🚀
 
@@ -104,6 +106,7 @@ When you visit the page, Next.js will render the HTML on the server, which helps
 - Built-in image optimization.
 - API routes for backend functionality.
 
+
 ## 4. Component Libraries Like Chakra UI and Material-UI 🎨
 
 In 2021, UI libraries are making front-end development super fast. Instead of designing every button and input field from scratch, you can use ready-to-use components.
@@ -129,10 +132,10 @@ export default App;
 ```
 
 **Advantages?**
-
 - Consistent design.
 - Saves time.
 - Highly customizable.
+
 
 ## 5. Progressive Web Apps (PWAs): The Mobile-Web Combo 📱
 
@@ -146,6 +149,7 @@ Here’s how to make your React app a PWA:
    npx create-react-app my-pwa-app --template pwa
    ```
 2. Make sure your *serviceWorker.js* file is correctly configured.
+
 
 ## Final Words 🌟
 

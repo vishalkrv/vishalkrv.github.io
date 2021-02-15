@@ -32,7 +32,7 @@ export default function Blog({ posts }) {
                   <Calendar date={post.date}></Calendar>
                   <Flex ml={15} flexDirection="column">
                     <Flex>
-                      <Text fontSize="xl" textAlign="left">
+                      <Text fontSize="xl" textAlign="left" width={600}>
                         {post.title}
                       </Text>
                       <Spacer></Spacer>
@@ -41,7 +41,7 @@ export default function Blog({ posts }) {
                         <Text ml={2}>{post.readTime}</Text>
                       </Flex>
                     </Flex>
-                    <Text fontSize="xs" color="gray.500" minW={380}>
+                    <Text fontSize="xs" color="gray.500" maxW={500} isTruncated>
                       {post.subtitle}
                     </Text>
                   </Flex>
