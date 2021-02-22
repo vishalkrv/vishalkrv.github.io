@@ -15,6 +15,7 @@ import { BiTime } from "react-icons/bi";
 import Link from "next/link";
 
 export default function Blog({ posts }) {
+  const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
   return (
     <Posts
       title="Blog"
@@ -22,7 +23,7 @@ export default function Blog({ posts }) {
     >
       <Flex justifyContent="center" mt={10}>
         <List spacing={8}>
-          {posts.map((post, index) => (
+          {sortedPosts.map((post, index) => (
             <Link
               key={`${post.title}_${index}`}
               href={`/blog/${encodeURIComponent(post.slug)}`}

@@ -16,7 +16,7 @@ export default function Blog({ title, subtitle, content, author, readTime, date,
   return (
     <Post title={title} description={subtitle}>
       <Flex alignItems="center" mt={10} flexDirection="column">
-        <Flex alignItems="flex-start" flexDirection="column" maxW={650}>
+        <Flex alignItems="flex-start" flexDirection="column" maxW={750}>
           <Heading as="h1" fontSize="4xl">
             {title}
           </Heading>
@@ -33,7 +33,7 @@ export default function Blog({ title, subtitle, content, author, readTime, date,
             <Spacer></Spacer>
             <ShareBtns title={title} link={`http://vishalkrv.com/blog/${slug}`}></ShareBtns>
           </Flex>
-          <Box mt={5}>
+          <Box mt={5} mb={100}>
             <ReactMarkdown
               renderers={ChakraUIRenderer()}
               children={content}
