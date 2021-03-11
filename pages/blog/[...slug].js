@@ -36,9 +36,9 @@ export default function Blog({ title, subtitle, content, author, readTime, date,
           <Box mt={5}>
             <ReactMarkdown
               renderers={ChakraUIRenderer()}
-              source={content}
+              children={content}
               plugins={[gfm]}
-              escapeHtml={false}
+              skipHtml={false}
             ></ReactMarkdown>
           </Box>
         </Flex>

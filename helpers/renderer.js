@@ -10,8 +10,14 @@ import {
   Heading,
   Image,
   Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
   Alert,
   Box,
+  TableContainer,
 } from "@chakra-ui/react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { okaidia } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -42,7 +48,10 @@ export const defaults = {
   code: (props) => {
     const { language, value } = props;
     return (
-      <Box display="inline">
+      <Box
+        marginTop={"var(--chakra-space-5)"}
+        marginBottom={"var(--chakra-space-5)"}
+      >
         <SyntaxHighlighter
           language={language}
           wrapLines="true"
@@ -63,7 +72,30 @@ export const defaults = {
   img: Image,
   linkReference: Link,
   imageReference: Image,
-  table: Table,
+  table: (props) => {
+    const { children } = props;
+    return (
+      <TableContainer marginBottom={"var(--chakra-space-5)"}>
+        <Table size='sm'>{children}</Table>
+      </TableContainer>
+    );
+  },
+  thead: (props) => {
+    const { children } = props;
+    return <Thead>{children}</Thead>;
+  },
+  tbody: (props) => {
+    const { children } = props;
+    return <Tbody>{children}</Tbody>;
+  },
+  tr: (props) => {
+    const { children } = props;
+    return <Tr>{children}</Tr>;
+  },
+  tableCell: (props) => {
+    const { isHeader, children } = props;
+    return isHeader ? <Th>{children}</Th> : <Td>{children}</Td>;
+  },
   text: (props) => {
     const { children } = props;
     return <Text as="span">{children}</Text>;
@@ -147,6 +179,10 @@ function ChakraUIRenderer(theme = defaults) {
     imageReference: theme.imageReference,
     text: theme.text,
     table: theme.table,
+    tableHead: theme.thead,
+    tableBody: theme.tbody,
+    tableRow: theme.tr,
+    tableCell: theme.tableCell,
     list: theme.list,
     listItem: theme.listItem,
     definition: theme.definition,
