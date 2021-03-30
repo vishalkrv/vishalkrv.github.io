@@ -118,7 +118,7 @@ const toolchain = [
 
 export default function Home() {
   return (
-    <Main title="Vishalkrv | Full Stack Developer">
+    <Main title="Full Stack Developer" description="A self motivated Full stack developer building enterprise applications">
       <Flex
         h="80%"
         flexDirection="column"

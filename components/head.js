@@ -10,14 +10,21 @@ import {
 import { FaMoon, FaSun } from "react-icons/fa";
 import { useRouter } from "next/router";
 
-function Header({ title }) {
+function Header({ title = "", description = "" }) {
   const router = useRouter();
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{title} | Vishalkrv</title>
+        <meta name="description" content={description}></meta>
+        <meta name="robots" content="index, follow"></meta>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+        ></meta>
+        <meta charSet="UTF-8"></meta>
         <link rel="preconnect" href="https://fonts.gstatic.com"></link>
         <link
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap"

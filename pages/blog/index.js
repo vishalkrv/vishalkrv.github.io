@@ -16,7 +16,10 @@ import Link from "next/link";
 
 export default function Blog({ posts }) {
   return (
-    <Posts>
+    <Posts
+      title="Blog"
+      description="I try to give shape to my thoughts, my learning and my exepriences here."
+    >
       <Flex justifyContent="center" mt={10}>
         <List spacing={8}>
           {posts.map((post, index) => (

@@ -13,7 +13,7 @@ export default function Blog({ title, subtitle, content, author, readTime, date,
     return `${month} ${temp.getDate()}`;
   };
   return (
-    <Post>
+    <Post title={title} description={subtitle}>
       <Flex alignItems="center" mt={10} flexDirection="column">
         <Flex alignItems="flex-start" flexDirection="column" maxW={650}>
           <Heading as="h1" fontSize="4xl">
