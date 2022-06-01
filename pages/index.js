@@ -113,6 +113,10 @@ const toolchain = [
       icon: SiAmazonaws,
       color: "orange.300",
     },
+    {
+      icon: SiGooglecloud,
+      color: "green.300",
+    },
   ],
 ];
 
@@ -146,7 +150,7 @@ export default function Home() {
               bgClip="text"
               display="inline"
             >
-              Full Stack Developer{" "}
+              Full Stack Professional{" "}
             </Text>
             currently working with
             <Text
