@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import {
-  SiNodeDotJs,
+  SiNodedotjs,
   SiHtml5,
   SiCss3,
   SiReact,
@@ -25,7 +25,7 @@ import {
   SiAmazonaws,
   SiGrunt,
   SiBootstrap,
-  SiNextDotJs,
+  SiNextdotjs,
   SiJenkins,
   SiSass,
   SiGit,
@@ -45,10 +45,10 @@ const toolchain = [
       color: "red.400",
     },
     {
-      icon: SiNextDotJs,
+      icon: SiNextdotjs,
     },
     {
-      icon: SiNodeDotJs,
+      icon: SiNodedotjs,
       color: "green.300",
     },
     {
@@ -122,7 +122,10 @@ const toolchain = [
 
 export default function Home() {
   return (
-    <Main title="Full Stack Developer" description="A self motivated Full stack developer building enterprise applications">
+    <Main
+      title="Full Stack Developer"
+      description="A self motivated Full stack developer building enterprise applications"
+    >
       <Flex
         h="80%"
         flexDirection="column"
