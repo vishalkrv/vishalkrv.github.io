@@ -160,9 +160,9 @@ export default function Home() {
               bgClip="text"
             >
               {" "}
-              Accenture India
+              DBS Singapore
             </Text>{" "}
-            building enterprise web application
+            as a Senior SRE member
           </Text>
         </Flex>
         <Flex mt={20} alignItems="center" flexDirection="column">
