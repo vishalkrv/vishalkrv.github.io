@@ -25,6 +25,17 @@ function Header({ title = "", description = "" }) {
           content="width=device-width, initial-scale=1.0"
         ></meta>
         <meta charSet="UTF-8"></meta>
+        <meta
+          property="og:image"
+          content="/og_image.png"
+        />
+        <meta property="og:title" content="Vishal | Full Stack Professional" />
+        <meta
+          property="og:description"
+          content="A self motivated Full Stack Professional currently working with DBS Singapore as a Senior SRE member"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <link rel="preconnect" href="https://fonts.gstatic.com"></link>
         <link
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap"
