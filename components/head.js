@@ -1,4 +1,5 @@
 import Head from "next/head";
+import NextLink from "next/link";
 import {
   Flex,
   Link,
@@ -8,27 +9,22 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { FaMoon, FaSun } from "react-icons/fa";
-import { useRouter } from "next/router";
 
 function Header({ title = "", description = "" }) {
-  const router = useRouter();
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <>
       <Head>
-        <title>{title} | Vishalkrv</title>
-        <meta name="description" content={description}></meta>
-        <meta name="robots" content="index, follow"></meta>
+        <title>{title ? `${title} | Vishalkrv` : "Vishalkrv"}</title>
+        <meta name="description" content={description} />
+        <meta name="robots" content="index, follow" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0"
-        ></meta>
-        <meta charSet="UTF-8"></meta>
-        <meta
-          property="og:image"
-          content="/og_image.png"
         />
+        <meta charSet="UTF-8" />
+        <meta property="og:image" content="/og_image.png" />
         <meta property="og:title" content="Vishal | Full Stack Professional" />
         <meta
           property="og:description"
@@ -36,11 +32,11 @@ function Header({ title = "", description = "" }) {
         />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <link rel="preconnect" href="https://fonts.gstatic.com"></link>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
         <link
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap"
           rel="stylesheet"
-        ></link>
+        />
       </Head>
       <Flex
         bgGradient="linear(to-l, #7928CA, #FF0080)"
@@ -49,14 +45,21 @@ function Header({ title = "", description = "" }) {
         pl={10}
         pr={10}
       >
-        <Link onClick={() => router.push("/")}>
+        <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
           <Text fontSize="2xl" fontWeight="700">
             Vishalkrv
           </Text>
         </Link>
-        <Spacer></Spacer>
-        <Link onClick={() => router.push("/")}>Home</Link>
-        <Link ml="30px" onClick={() => router.push("/blog")}>
+        <Spacer />
+        <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
+          Home
+        </Link>
+        <Link
+          as={NextLink}
+          ml="30px"
+          href="/blog"
+          _hover={{ textDecoration: "none" }}
+        >
           Blog
         </Link>
         <IconButton
@@ -65,7 +68,8 @@ function Header({ title = "", description = "" }) {
           onClick={toggleColorMode}
           variant="ghost"
           colorScheme={colorMode === "light" ? "gray" : "yellow"}
-        ></IconButton>
+          aria-label="Toggle color mode"
+        />
       </Flex>
     </>
   );

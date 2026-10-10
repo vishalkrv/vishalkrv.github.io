@@ -1,4 +1,4 @@
-import { Box, SimpleGrid } from "@chakra-ui/react";
+import { SimpleGrid } from "@chakra-ui/react";
 import {
   FacebookShareButton,
   FacebookIcon,
@@ -8,27 +8,27 @@ import {
   RedditIcon,
   TwitterShareButton,
   TwitterIcon,
-  WorkplaceShareButton,
-  WorkplaceIcon,
+  WhatsappShareButton,
+  WhatsappIcon,
 } from "react-share";
 
 const ShareBtns = ({ title, link }) => {
   return (
     <SimpleGrid columns={5} spacing={1}>
       <LinkedinShareButton url={link} title={title}>
-        <LinkedinIcon size={24} round={true}></LinkedinIcon>
+        <LinkedinIcon size={24} round={true} />
       </LinkedinShareButton>
       <TwitterShareButton url={link} title={title}>
-        <TwitterIcon size={24} round={true}></TwitterIcon>
+        <TwitterIcon size={24} round={true} />
       </TwitterShareButton>
-      <WorkplaceShareButton url={link} title={title}>
-        <WorkplaceIcon size={24} round={true}></WorkplaceIcon>
-      </WorkplaceShareButton>
+      <WhatsappShareButton url={link} title={title}>
+        <WhatsappIcon size={24} round={true} />
+      </WhatsappShareButton>
       <RedditShareButton url={link} title={title}>
-        <RedditIcon size={24} round={true}></RedditIcon>
+        <RedditIcon size={24} round={true} />
       </RedditShareButton>
       <FacebookShareButton url={link} title={title}>
-        <FacebookIcon size={24} round={true}></FacebookIcon>
+        <FacebookIcon size={24} round={true} />
       </FacebookShareButton>
     </SimpleGrid>
   );

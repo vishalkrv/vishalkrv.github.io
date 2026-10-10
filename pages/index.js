@@ -15,14 +15,12 @@ import {
 import {
   SiNodedotjs,
   SiHtml5,
-  SiCss3,
+  SiCss,
   SiReact,
   SiJavascript,
   SiWebpack,
   SiAngular,
   SiFlutter,
-  SiMicrosoftazure,
-  SiAmazonaws,
   SiGrunt,
   SiBootstrap,
   SiNextdotjs,
@@ -32,6 +30,8 @@ import {
   SiDart,
   SiGooglecloud,
 } from "react-icons/si";
+import { VscAzure } from "react-icons/vsc";
+import { FaAws } from "react-icons/fa";
 import Main from "../layout/main";
 
 const toolchain = [
@@ -71,7 +71,7 @@ const toolchain = [
       color: "orange.400",
     },
     {
-      icon: SiCss3,
+      icon: SiCss,
       color: "blue.300",
     },
     {
@@ -106,11 +106,11 @@ const toolchain = [
     {},
     {},
     {
-      icon: SiMicrosoftazure,
+      icon: VscAzure,
       color: "blue.300",
     },
     {
-      icon: SiAmazonaws,
+      icon: FaAws,
       color: "orange.300",
     },
     {
@@ -178,7 +178,7 @@ export default function Home() {
                     <Td key={i}>
                       {cols.icon && (
                         <Tooltip
-                          label={cols.icon.name.replace("Si", "")}
+                          label={cols.icon.name ? cols.icon.name.replace(/^(Si|Fa|Vsc|Tb)/, "") : ""}
                           fontSize="md"
                         >
                           <Box as="span">

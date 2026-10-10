@@ -1,10 +1,8 @@
 import {
-  Box,
   Flex,
   Text,
   List,
   ListItem,
-  SimpleGrid,
   Icon,
   Spacer,
 } from "@chakra-ui/react";
@@ -14,8 +12,8 @@ import { getPosts } from "../../helpers";
 import { BiTime } from "react-icons/bi";
 import Link from "next/link";
 
-export default function Blog({ posts }) {
-  const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+export default function Blog({ posts = [] }) {
+  const sortedPosts = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
   return (
     <Posts
       title="Blog"
@@ -24,11 +22,11 @@ export default function Blog({ posts }) {
       <Flex justifyContent="center" mt={10}>
         <List spacing={8}>
           {sortedPosts.map((post, index) => (
-            <Link
-              key={`${post.title}_${index}`}
-              href={`/blog/${encodeURIComponent(post.slug)}`}
-            >
-              <ListItem cursor="pointer">
+            <ListItem key={`${post.slug}_${index}`} cursor="pointer">
+              <Link
+                href={`/blog/${encodeURIComponent(post.slug)}`}
+                style={{ textDecoration: "none" }}
+              >
                 <Flex>
                   <Calendar date={post.date}></Calendar>
                   <Flex ml={15} flexDirection="column">
@@ -47,8 +45,8 @@ export default function Blog({ posts }) {
                     </Text>
                   </Flex>
                 </Flex>
-              </ListItem>
-            </Link>
+              </Link>
+            </ListItem>
           ))}
         </List>
       </Flex>
@@ -57,7 +55,7 @@ export default function Blog({ posts }) {
 }
 
 export async function getStaticProps() {
-  const allPosts = await getPosts();
+  const allPosts = getPosts();
   return {
     props: {
       posts: allPosts,
