@@ -1,20 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&family=Kalam:wght@400&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 html,
 body,
 #__next {
-  height: 100%;
+  min-height: 100%;
+  background-color: #060212;
+  color: #f1f5f9;
+  font-family: 'Nunito', sans-serif;
+  overflow-x: hidden;
 }
-button:focus {
-  outline: 0 !important;
+
+/* Custom cyber/HUD scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070314;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 245, 255, 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 245, 255, 0.5);
 }
 
+/* Glassmorphic and glow helper classes */
+@layer utilities {
+  .glass-panel {
+    background: rgba(14, 8, 36, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 245, 255, 0.18);
+  }
 
+  .glass-panel-pink {
+    background: rgba(18, 8, 36, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 0, 128, 0.25);
+  }
 
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(0, 245, 255, 0.5), 0 0 20px rgba(0, 245, 255, 0.25);
+  }
 
-/* CSS DEBUGGER */
-/* *:not(path):not(g) {
-  color: hsla(210, 100%, 100%, 0.9) !important;
-  background: hsla(210, 100%, 50%, 0.5) !important;
-  outline: solid 0.25rem hsla(210, 100%, 100%, 0.5) !important;
-} */
+  .text-glow-pink {
+    text-shadow: 0 0 10px rgba(255, 0, 128, 0.5), 0 0 20px rgba(255, 0, 128, 0.25);
+  }
+}
