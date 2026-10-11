@@ -14,7 +14,7 @@ export function getTerrainElevation(x, z) {
   const distCrag = Math.hypot(x - 0.5, z - 4.5);
   const crag = Math.max(0, 8.8 - distCrag * 1.6);
 
-  // 3. Main Ascent Ridge Spine (Line connecting Base Camp (-19, 15) to Summit (14, -10.5))
+  // 3. Main Ascent Ridge Spine (Base Camp (-19, 15) to Summit (14, -10.5))
   const dx = 14 - (-19);
   const dz = -10.5 - 15;
   const lenSq = dx * dx + dz * dz;
@@ -26,7 +26,7 @@ export function getTerrainElevation(x, z) {
 
   // Elevation progression along the ridge spine
   const spineHeight = 1.0 + Math.pow(t, 1.25) * 17.0;
-  const ridgeWidth = 4.8 + (1 - t) * 5.2;
+  const ridgeWidth = 4.5 + (1 - t) * 5.0;
   const spineFactor = Math.exp(-Math.pow(distSpine / ridgeWidth, 2));
   const ridge = spineHeight * spineFactor;
 
@@ -34,18 +34,31 @@ export function getTerrainElevation(x, z) {
   const distBack = Math.hypot(x - 16, z - (-18));
   const backRidge = Math.max(0, 15.0 - distBack * 1.0);
 
-  // 5. Distinct Ridge Fluting and Contour Striations (creates authentic mountain ridges)
-  const ridgeFluting =
-    Math.sin(x * 0.42 + z * 0.28) * 1.2 * spineFactor +
-    Math.cos(x * 0.6 - z * 0.42) * 0.7 * spineFactor;
+  // 5. Left Spur Ridge for additional mass
+  const distLeftSpur = Math.hypot(x - (-4), z - 0);
+  const leftSpur = Math.max(0, 9.0 - distLeftSpur * 1.1) * 0.55;
 
-  const fineDetails = Math.sin(x * 0.8) * Math.sin(z * 0.8) * 0.22;
+  // 6. Right Spur Ridge for dramatic silhouette
+  const distRightSpur = Math.hypot(x - 10, z - (-5));
+  const rightSpur = Math.max(0, 11.0 - distRightSpur * 1.0) * 0.45;
+
+  // 7. Distinct Ridge Fluting and Contour Striations
+  const ridgeFluting =
+    Math.sin(x * 0.42 + z * 0.28) * 1.4 * spineFactor +
+    Math.cos(x * 0.6 - z * 0.42) * 0.9 * spineFactor +
+    Math.sin(x * 0.25 - z * 0.5) * 0.6 * spineFactor;
+
+  const fineDetails =
+    Math.sin(x * 0.8) * Math.sin(z * 0.8) * 0.25 +
+    Math.sin(x * 1.2 + z * 0.9) * 0.12;
 
   const total = Math.max(
     ridge + ridgeFluting + fineDetails,
     summit,
     crag,
-    backRidge * 0.85
+    backRidge * 0.85,
+    leftSpur,
+    rightSpur
   );
 
   return Math.max(0.12, total);
@@ -56,7 +69,7 @@ function TerrainMesh() {
   const { geometry, wireGeometry } = useMemo(() => {
     const width = 90;
     const height = 90;
-    const segments = 85;
+    const segments = 90;
     const geom = new THREE.PlaneGeometry(width, height, segments, segments);
     geom.rotateX(-Math.PI / 2);
 
@@ -77,35 +90,36 @@ function TerrainMesh() {
       {/* Dark mountain body */}
       <mesh geometry={geometry}>
         <meshStandardMaterial
-          color="#020914"
-          roughness={0.92}
-          metalness={0.2}
+          color="#010810"
+          roughness={0.95}
+          metalness={0.1}
         />
       </mesh>
-      {/* Electric cyan wireframe grid */}
+      {/* Electric cyan wireframe grid - sci-fi holographic look */}
       <lineSegments geometry={wireGeometry}>
         <lineBasicMaterial
-          color="#00f5ff"
+          color="#00e8f0"
           transparent={true}
-          opacity={0.45}
+          opacity={0.6}
+          depthWrite={false}
         />
       </lineSegments>
     </group>
   );
 }
 
-// Curving Glowing Pink Trail Ribbon snuggled tight to the mountain surface
+// Thin glowing trail line snuggled to the mountain surface
 function SurfaceTrail({ curvePoints }) {
   const { ribbonGeom, haloGeom } = useMemo(() => {
     const curve = new THREE.CatmullRomCurve3(curvePoints);
-    const tube = new THREE.TubeGeometry(curve, 180, 0.22, 8, false);
-    const halo = new THREE.TubeGeometry(curve, 180, 0.45, 8, false);
+    const tube = new THREE.TubeGeometry(curve, 220, 0.10, 8, false);
+    const halo = new THREE.TubeGeometry(curve, 220, 0.22, 8, false);
     return { ribbonGeom: tube, haloGeom: halo };
   }, [curvePoints]);
 
   return (
     <group>
-      {/* Glowing hot-pink ribbon */}
+      {/* Core bright pink line */}
       <mesh geometry={ribbonGeom}>
         <meshBasicMaterial color="#ff0080" />
       </mesh>
@@ -114,7 +128,7 @@ function SurfaceTrail({ curvePoints }) {
         <meshBasicMaterial
           color="#ff1493"
           transparent={true}
-          opacity={0.42}
+          opacity={0.25}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
@@ -133,7 +147,7 @@ function WaypointMarker({ waypoint, position, isSelected, onClick, index, total 
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.35, 0.62, 32]} />
         <meshBasicMaterial
-          color={isSelected || isBase ? "#00f5ff" : "#ff0080"}
+          color="#00f5ff"
           side={THREE.DoubleSide}
           transparent={true}
           opacity={isSelected ? 0.95 : 0.65}
@@ -143,23 +157,23 @@ function WaypointMarker({ waypoint, position, isSelected, onClick, index, total 
       {/* Flag pole */}
       <mesh position={[0, 0.5, 0]}>
         <cylinderGeometry args={[0.025, 0.025, 0.95, 8]} />
-        <meshBasicMaterial color={isSelected ? "#00f5ff" : "#ff0080"} />
+        <meshBasicMaterial color="#00f5ff" />
       </mesh>
 
       {/* Flag banner */}
       <mesh position={[0.16, 0.85, 0]}>
         <boxGeometry args={[0.28, 0.18, 0.015]} />
-        <meshBasicMaterial color={isSelected ? "#00f5ff" : "#ff0080"} />
+        <meshBasicMaterial color="#00f5ff" />
       </mesh>
 
-      {/* Radiant Summit Pink Aura */}
+      {/* Radiant Summit Aura */}
       {isSummit && (
         <mesh position={[0, 1.25, 0]}>
           <sphereGeometry args={[0.9, 16, 16]} />
           <meshBasicMaterial
-            color="#ff0080"
+            color="#ff3399"
             transparent={true}
-            opacity={0.5}
+            opacity={0.45}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
@@ -183,15 +197,15 @@ function WaypointMarker({ waypoint, position, isSelected, onClick, index, total 
             /* Highlighted Active Waypoint Badge with downward pointer arrow */
             <div className="flex flex-col items-center">
               <div className="px-3.5 py-1.5 rounded-lg bg-space-950/95 border-2 border-cyan-400 text-cyan-200 text-xs font-bold shadow-[0_0_22px_rgba(0,245,255,0.7)] flex items-center space-x-1.5">
-                <span className="text-pink-400 font-extrabold">✕</span>
+                <span className="text-cyan-400 font-extrabold">✕</span>
                 <span>{waypoint.company || waypoint.label}</span>
               </div>
               <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-cyan-400 shadow-[0_0_10px_#00f5ff]" />
             </div>
           ) : (
             /* Clean Pill Badge matching mockup */
-            <div className="px-2.5 py-0.5 rounded-md bg-space-950/90 border border-pink-500/50 text-slate-200 text-[11px] shadow-sm flex items-center space-x-1 hover:border-cyan-400">
-              <span className="text-pink-400 font-bold">
+            <div className="px-2.5 py-0.5 rounded-md bg-space-950/90 border border-cyan-500/50 text-slate-200 text-[11px] shadow-sm flex items-center space-x-1 hover:border-cyan-400">
+              <span className="text-cyan-400 font-bold">
                 {String(index + 1).padStart(2, "0")}:
               </span>
               <span>{waypoint.label || waypoint.role}</span>
@@ -231,29 +245,73 @@ export default function MountainScene({
     ]);
   }, [waypointAnchors]);
 
-  // Construct curving S-curve switchback trail snuggled tight to the mountain surface
+  // Construct serpentine S-curve trail that hugs the mountain surface
+  // Between each waypoint pair, the trail gently swings ±1.5-2.0 units
+  // in z (perpendicular to the slope direction) to create visible switchbacks
   const curvePoints = useMemo(() => {
     const baseSpline = [
-      new THREE.Vector3(-18.0, 0, 14.5), // 01
-      new THREE.Vector3(-14.2, 0, 11.5),
-      new THREE.Vector3(-10.5, 0, 8.5),  // 02
-      new THREE.Vector3(-6.2, 0, 6.0),
-      new THREE.Vector3(-2.5, 0, 4.5),   // 03
-      new THREE.Vector3(0.5, 0, 1.0),    // Curve around crag
-      new THREE.Vector3(2.0, 0, -0.5),   // S-curve switchback loop
-      new THREE.Vector3(4.2, 0, -2.8),   // 04: DBS Singapore
-      new THREE.Vector3(6.5, 0, -5.0),
-      new THREE.Vector3(9.2, 0, -7.2),   // 05
+      // 01: Base Camp
+      new THREE.Vector3(-18.0, 0, 14.5),
+      new THREE.Vector3(-16.5, 0, 13.0),
+      new THREE.Vector3(-15.0, 0, 12.5),
+
+      // S-curve between 01→02: swing toward viewer (+z) then back (-z)
+      new THREE.Vector3(-13.8, 0, 12.0),
+      new THREE.Vector3(-12.5, 0, 10.0),
+      new THREE.Vector3(-11.5, 0, 9.5),
+
+      // 02: Early Route
+      new THREE.Vector3(-10.5, 0, 8.5),
+
+      // S-curve between 02→03: swing away (-z) then toward viewer (+z)
+      new THREE.Vector3(-9.2, 0, 7.0),
+      new THREE.Vector3(-7.8, 0, 5.0),
+      new THREE.Vector3(-6.2, 0, 5.8),
+      new THREE.Vector3(-4.8, 0, 6.5),
+      new THREE.Vector3(-3.5, 0, 5.5),
+
+      // 03: Camp 1
+      new THREE.Vector3(-2.5, 0, 4.5),
+
+      // S-curve between 03→04: swing toward viewer (+z) then away (-z)
+      new THREE.Vector3(-1.5, 0, 3.8),
+      new THREE.Vector3(-0.2, 0, 2.5),
+      new THREE.Vector3(0.8, 0, 1.0),
+      new THREE.Vector3(1.5, 0, -0.5),
+      new THREE.Vector3(2.5, 0, -1.0),
+      new THREE.Vector3(3.5, 0, -2.0),
+
+      // 04: DBS Singapore
+      new THREE.Vector3(4.2, 0, -2.8),
+
+      // S-curve between 04→05: swing away (-z) then toward viewer (+z)
+      new THREE.Vector3(5.0, 0, -3.5),
+      new THREE.Vector3(5.8, 0, -5.0),
+      new THREE.Vector3(6.8, 0, -6.2),
+      new THREE.Vector3(7.5, 0, -5.5),
+      new THREE.Vector3(8.2, 0, -6.0),
+      new THREE.Vector3(8.8, 0, -6.8),
+
+      // 05: AI & Exploration
+      new THREE.Vector3(9.2, 0, -7.2),
+
+      // S-curve between 05→06: swing toward viewer (+z) then to summit
+      new THREE.Vector3(10.0, 0, -7.5),
+      new THREE.Vector3(10.8, 0, -8.0),
       new THREE.Vector3(11.8, 0, -9.0),
-      new THREE.Vector3(14.0, 0, -10.5), // 06: Summit
+      new THREE.Vector3(12.5, 0, -9.5),
+      new THREE.Vector3(13.2, 0, -10.0),
+
+      // 06: Summit
+      new THREE.Vector3(14.0, 0, -10.5),
     ];
 
     const spline = new THREE.CatmullRomCurve3(baseSpline);
-    const sampled = spline.getPoints(140);
+    const sampled = spline.getPoints(200);
 
     // Clamp every sampled point directly onto the mountain terrain surface
     return sampled.map((pt) => {
-      const y = getTerrainElevation(pt.x, pt.z) + 0.16;
+      const y = getTerrainElevation(pt.x, pt.z) + 0.18;
       return new THREE.Vector3(pt.x, y, pt.z);
     });
   }, []);
@@ -267,9 +325,9 @@ export default function MountainScene({
         camera.lookAt(0.5, 9.0, -2);
       }}
     >
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[-15, 30, 20]} intensity={1.5} color="#00f5ff" />
-      <pointLight position={[3, 11, -1]} intensity={2.6} color="#ff0080" distance={40} />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[-15, 30, 20]} intensity={1.6} color="#00f5ff" />
+      <pointLight position={[3, 11, -1]} intensity={1.2} color="#ff0080" distance={22} />
 
       {/* Starry Night Sky */}
       <Stars radius={70} depth={40} count={2200} factor={3.5} saturation={0.5} fade />
@@ -277,7 +335,7 @@ export default function MountainScene({
       {/* Mountain Terrain Wireframe */}
       <TerrainMesh />
 
-      {/* Curving Glowing Pink Trail Ribbon hugging the terrain */}
+      {/* Curving Glowing Trail hugging the terrain */}
       <SurfaceTrail curvePoints={curvePoints} />
 
       {/* Waypoint Markers & Mockup Badges */}
