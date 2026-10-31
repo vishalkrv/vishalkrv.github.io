@@ -1,34 +1,94 @@
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import gfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { okaidia } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import Navbar from "../../components/Navbar";
-import ShareBtns from "../../components/share";
-import { getPostBySlug, getPosts } from "../../helpers";
-import { ArrowLeft, Clock, Calendar, User, Compass } from "lucide-react";
+import { getPosts, getPostBySlug } from "../../helpers";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Calendar, Clock, ArrowLeft, Compass, User } from "lucide-react";
+import ShareButtons from "../../components/share";
 
-// Clean Minimalist Markdown Components
+const vantagePrismTheme = {
+  'code[class*="language-"]': {
+    color: "var(--color-ink)",
+    fontFamily: "var(--font-mono)",
+    fontSize: "0.875rem",
+    lineHeight: "1.6",
+    direction: "ltr",
+    textAlign: "left",
+    whiteSpace: "pre",
+    wordSpacing: "normal",
+    wordBreak: "normal",
+    tabSize: 2,
+    hyphens: "none",
+  },
+  'pre[class*="language-"]': {
+    color: "var(--color-ink)",
+    fontFamily: "var(--font-mono)",
+    fontSize: "0.875rem",
+    lineHeight: "1.6",
+    direction: "ltr",
+    textAlign: "left",
+    whiteSpace: "pre",
+    wordSpacing: "normal",
+    wordBreak: "normal",
+    tabSize: 2,
+    hyphens: "none",
+    margin: 0,
+    padding: "1rem",
+    background: "var(--color-paper-2)",
+  },
+  comment: { color: "var(--color-muted)", fontStyle: "italic" },
+  prolog: { color: "var(--color-muted)" },
+  doctype: { color: "var(--color-muted)" },
+  cdata: { color: "var(--color-muted)" },
+  punctuation: { color: "var(--color-ink-2)" },
+  property: { color: "var(--color-accent)" },
+  tag: { color: "var(--color-accent)" },
+  boolean: { color: "var(--color-accent)" },
+  number: { color: "var(--color-accent)" },
+  constant: { color: "var(--color-accent)" },
+  symbol: { color: "var(--color-accent)" },
+  deleted: { color: "var(--color-error)" },
+  selector: { color: "var(--color-accent)" },
+  "attr-name": { color: "var(--color-accent)" },
+  string: { color: "var(--color-ink-2)" },
+  char: { color: "var(--color-ink-2)" },
+  builtin: { color: "var(--color-accent)" },
+  inserted: { color: "var(--color-success)" },
+  operator: { color: "var(--color-ink)" },
+  entity: { color: "var(--color-accent)" },
+  url: { color: "var(--color-accent)" },
+  variable: { color: "var(--color-ink)" },
+  atrule: { color: "var(--color-accent)" },
+  "attr-value": { color: "var(--color-ink-2)" },
+  keyword: { color: "var(--color-accent)" },
+  function: { color: "var(--color-ink)" },
+  "class-name": { color: "var(--color-accent)" },
+  regex: { color: "var(--color-accent)" },
+  important: { color: "var(--color-accent)" },
+};
+
+// Custom markdown renderers for sleek reading typography
 const markdownComponents = {
   h1: ({ children }) => (
-    <h1 className="text-2xl sm:text-3xl font-bold text-white mt-8 mb-4 border-b border-slate-800 pb-2">
+    <h1 className="text-2xl sm:text-3xl font-normal text-ink tracking-tight mt-8 mb-4 border-b border-rule pb-2">
       {children}
     </h1>
   ),
   h2: ({ children }) => (
-    <h2 className="text-xl sm:text-2xl font-bold text-slate-100 mt-8 mb-3">
+    <h2 className="text-xl sm:text-2xl font-normal text-ink tracking-tight mt-8 mb-3">
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-lg sm:text-xl font-semibold text-cyan-300 mt-6 mb-2">
+    <h3 className="text-lg sm:text-xl font-normal text-ink mt-6 mb-2">
       {children}
     </h3>
   ),
   p: ({ children }) => (
-    <p className="text-slate-300 text-base leading-relaxed my-4">
+    <p className="text-ink-2 text-sm sm:text-base leading-relaxed my-4 font-light">
       {children}
     </p>
   ),
@@ -37,23 +97,23 @@ const markdownComponents = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4 decoration-cyan-500/40"
+      className="text-accent hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-focus rounded"
     >
       {children}
     </a>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-cyan-500 pl-4 py-1 my-4 bg-space-900/40 text-slate-300 italic">
+    <blockquote className="border-l-2 border-accent pl-4 py-1 my-4 bg-paper-2 text-ink-2">
       {children}
     </blockquote>
   ),
   ul: ({ children }) => (
-    <ul className="list-disc list-inside space-y-1 my-4 text-slate-300">
+    <ul className="list-disc list-inside space-y-1 my-4 text-ink-2 text-sm sm:text-base">
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="list-decimal list-inside space-y-1 my-4 text-slate-300">
+    <ol className="list-decimal list-inside space-y-1 my-4 text-ink-2 text-sm sm:text-base">
       {children}
     </ol>
   ),
@@ -62,16 +122,16 @@ const markdownComponents = {
     const codeString = String(children).replace(/\n$/, "");
     if (match) {
       return (
-        <div className="my-6 rounded-xl overflow-hidden border border-slate-800 shadow-lg">
-          <div className="bg-space-900 px-4 py-1.5 border-b border-slate-800 text-[11px] font-mono text-slate-400 flex items-center justify-between">
-            <span>{match[1].toUpperCase()}</span>
+        <div className="my-6 rounded overflow-hidden border border-rule">
+          <div className="bg-paper-2 px-4 py-1.5 border-b border-rule text-xs num text-muted flex items-center justify-between">
+            <span>{match[1].toLowerCase()}</span>
           </div>
           <SyntaxHighlighter
             language={match[1]}
-            style={okaidia}
+            style={vantagePrismTheme}
             wrapLines={true}
             wrapLongLines={true}
-            customStyle={{ margin: 0, padding: "1rem", background: "#0c0621" }}
+            customStyle={{ margin: 0, padding: "1rem", background: "var(--color-paper-2)" }}
           >
             {codeString}
           </SyntaxHighlighter>
@@ -80,26 +140,26 @@ const markdownComponents = {
     }
     return (
       <code
-        className="px-1.5 py-0.5 rounded bg-space-900 text-pink-400 font-mono text-sm border border-slate-800"
+        className="px-1.5 py-0.5 rounded bg-paper-2 text-accent font-mono text-xs border border-rule"
         {...props}
       >
         {children}
       </code>
     );
   },
-  hr: () => <hr className="my-8 border-slate-800" />,
+  hr: () => <hr className="my-8 border-rule" />,
   table: ({ children }) => (
-    <div className="overflow-x-auto my-6 border border-slate-800 rounded-lg">
-      <table className="w-full text-left text-sm text-slate-300">{children}</table>
+    <div className="overflow-x-auto my-6 border border-rule rounded">
+      <table className="w-full text-left text-sm text-ink-2">{children}</table>
     </div>
   ),
   th: ({ children }) => (
-    <th className="bg-space-900 px-4 py-2 border-b border-slate-800 font-semibold text-white">
+    <th className="bg-paper-2 px-4 py-2 border-b border-rule font-medium text-ink">
       {children}
     </th>
   ),
   td: ({ children }) => (
-    <td className="px-4 py-2 border-b border-slate-800/60">{children}</td>
+    <td className="px-4 py-2 border-b border-rule/60 num">{children}</td>
   ),
 };
 
@@ -115,62 +175,62 @@ export default function BlogPost({
   coordinates = "1.3521° N, 103.8198° E",
   logNumber = 14,
 }) {
-  const authorName = typeof author === "object" ? author?.name || "Vishal" : author || "Vishal";
+  const authorName = typeof author === "object" ? author?.name || "Vishal Verma" : author || "Vishal Verma";
   const slugPath = Array.isArray(slug) ? slug.join("/") : slug;
 
   return (
     <>
       <Head>
-        <title>{title} | Vishalkrv Field Logs</title>
+        <title>{title} · Vishal Verma Field Logs</title>
         <meta name="description" content={subtitle || title} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={subtitle || title} />
       </Head>
 
-      <div className="min-h-screen bg-space-950 text-slate-100 selection:bg-cyan-500 selection:text-black">
+      <div className="min-h-screen bg-paper text-ink">
         <Navbar />
 
         <main className="max-w-3xl mx-auto px-6 py-10">
           {/* BACK LINK */}
           <Link
             href="/blog"
-            className="inline-flex items-center space-x-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition mb-8"
+            className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors duration-150 mb-8 focus-visible:outline-2 focus-visible:outline-focus rounded"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>← Back to Field Logs</span>
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            <span>Back to field logs</span>
           </Link>
 
-          {/* ARTICLE HEADER (Clean Minimalist Reader) */}
-          <header className="mb-10 pb-8 border-b border-slate-800">
+          {/* ARTICLE HEADER */}
+          <header className="mb-10 pb-8 border-b border-rule">
             {/* Log Telemetry Tag */}
-            <div className="flex items-center space-x-2 font-mono text-xs text-pink-400 mb-2">
-              <Compass className="w-3.5 h-3.5" />
-              <span>LOG #{logNumber} • {coordinates}</span>
+            <div className="flex items-center gap-2 text-xs text-accent num mb-2">
+              <Compass className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Log #{logNumber} · {coordinates}</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
+            <h1 className="text-3xl sm:text-4xl font-normal text-ink tracking-tight leading-tight mb-3">
               {title}
             </h1>
 
             {subtitle && (
-              <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-6 font-normal">
+              <p className="text-base sm:text-lg text-ink-2 leading-relaxed mb-6 font-light">
                 {subtitle}
               </p>
             )}
 
             {/* Meta Row */}
-            <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-400 pt-4 border-t border-slate-800/60">
-              <div className="flex items-center space-x-4">
-                <span className="flex items-center space-x-1">
-                  <User className="w-3.5 h-3.5 text-cyan-400" />
-                  <span className="text-slate-300">{authorName}</span>
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-muted num pt-4 border-t border-rule">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
+                  <span className="text-ink-2">{authorName}</span>
                 </span>
-                <span className="flex items-center space-x-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
                   <span>{date}</span>
                 </span>
-                <span className="flex items-center space-x-1">
-                  <Clock className="w-3.5 h-3.5 text-pink-400" />
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
                   <span>{readTime}</span>
                 </span>
               </div>
@@ -180,7 +240,7 @@ export default function BlogPost({
                 {tags.map((t, idx) => (
                   <span
                     key={idx}
-                    className="px-2 py-0.5 rounded bg-space-900 border border-slate-800 text-cyan-400 text-[10px]"
+                    className="px-2 py-0.5 rounded bg-paper-2 border border-rule text-ink-2 text-xs"
                   >
                     {t}
                   </span>
@@ -189,24 +249,27 @@ export default function BlogPost({
             </div>
           </header>
 
-          {/* ARTICLE BODY */}
-          <article className="prose prose-invert max-w-none">
+          {/* MARKDOWN PROSE ARTICLE */}
+          <article className="prose-container">
             <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
               components={markdownComponents}
-              remarkPlugins={[gfm]}
             >
               {content}
             </ReactMarkdown>
           </article>
 
-          {/* FOOTER SHARE */}
-          <footer className="mt-14 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs font-mono text-slate-400">
-              Share this expedition log:
-            </span>
-            <ShareBtns
+          {/* SHARE AND EXPEDITION FOOTER */}
+          <footer className="mt-12 pt-8 border-t border-rule flex flex-col sm:flex-row items-center justify-between gap-4">
+            <Link
+              href="/blog"
+              className="text-xs text-muted hover:text-accent transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-focus rounded"
+            >
+              ← Back to all logs
+            </Link>
+            <ShareButtons
+              url={`https://vishalkrv.github.io/blog/${slugPath}`}
               title={title}
-              link={`https://vishalkrv.github.io/blog/${slugPath}`}
             />
           </footer>
         </main>
@@ -215,22 +278,27 @@ export default function BlogPost({
   );
 }
 
-export async function getStaticProps({ params }) {
-  const postData = getPostBySlug(params.slug);
-  return {
-    props: postData,
-  };
-}
-
 export async function getStaticPaths() {
-  const data = getPosts();
-  const paths = data.map(({ slug }) => ({
+  const posts = getPosts();
+  const paths = posts.map((post) => ({
     params: {
-      slug: [slug],
+      slug: [post.slug],
     },
   }));
+
   return {
     paths,
     fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const slug = params.slug[0];
+  const post = getPostBySlug(slug);
+
+  return {
+    props: {
+      ...post,
+    },
   };
 }

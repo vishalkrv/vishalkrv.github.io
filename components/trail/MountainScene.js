@@ -1,10 +1,13 @@
-import React, { useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
+import React, { useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { careerTrail } from "../../data/trail";
 
-// Mathematical elevation creating sculpted mountain ridges matching the mockup
+/**
+ * Topographic elevation formula creating a sculpted mountain ridge
+ * Base Camp at (-18, 14.5), DBS Singapore at (4.2, -2.8), Summit at (14, -10.5)
+ */
 export function getTerrainElevation(x, z) {
   // 1. Sharp Summit Peak (Upper Right at x=14, z=-10.5)
   const distSummit = Math.hypot(x - 14, z - (-10.5));
@@ -64,7 +67,7 @@ export function getTerrainElevation(x, z) {
   return Math.max(0.12, total);
 }
 
-// Glowing Cyan/Teal Wireframe Mountain Mesh
+// Vantage Reality Capture Topographic Terrain Mesh with Height Coloring
 function TerrainMesh() {
   const { geometry, wireGeometry } = useMemo(() => {
     const width = 90;
@@ -74,11 +77,36 @@ function TerrainMesh() {
     geom.rotateX(-Math.PI / 2);
 
     const pos = geom.attributes.position;
+    const colors = new Float32Array(pos.count * 3);
+
+    const cLow = new THREE.Color("#0a101a");
+    const cMid = new THREE.Color("#131e2d");
+    const cHigh = new THREE.Color("#1f3146");
+    const cPeak = new THREE.Color("#314b68");
+
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const z = pos.getZ(i);
-      pos.setY(i, getTerrainElevation(x, z));
+      const elev = getTerrainElevation(x, z);
+      pos.setY(i, elev);
+
+      // Height-based lithic color gradient
+      const normH = Math.min(1, Math.max(0, elev / 18.5));
+      const vertexColor = new THREE.Color();
+      if (normH < 0.3) {
+        vertexColor.lerpColors(cLow, cMid, normH / 0.3);
+      } else if (normH < 0.75) {
+        vertexColor.lerpColors(cMid, cHigh, (normH - 0.3) / 0.45);
+      } else {
+        vertexColor.lerpColors(cHigh, cPeak, (normH - 0.75) / 0.25);
+      }
+
+      colors[i * 3] = vertexColor.r;
+      colors[i * 3 + 1] = vertexColor.g;
+      colors[i * 3 + 2] = vertexColor.b;
     }
+
+    geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     geom.computeVertexNormals();
 
     const wire = new THREE.WireframeGeometry(geom);
@@ -87,48 +115,53 @@ function TerrainMesh() {
 
   return (
     <group>
-      {/* Dark mountain body */}
+      {/* Lithic terrain body with height gradient */}
       <mesh geometry={geometry}>
         <meshStandardMaterial
-          color="#010810"
-          roughness={0.95}
-          metalness={0.1}
+          vertexColors={true}
+          roughness={0.82}
+          metalness={0.08}
         />
       </mesh>
-      {/* Electric cyan wireframe grid - sci-fi holographic look */}
+      {/* Restrained steel survey contour wireframe */}
       <lineSegments geometry={wireGeometry}>
         <lineBasicMaterial
-          color="#00e8f0"
+          color="#34485e"
           transparent={true}
-          opacity={0.6}
+          opacity={0.32}
           depthWrite={false}
         />
       </lineSegments>
+      {/* Coordinate Survey Grid Floor at datum y=0 */}
+      <gridHelper
+        args={[90, 45, "#25374c", "#101926"]}
+        position={[0, 0.02, 0]}
+      />
     </group>
   );
 }
 
-// Thin glowing trail line snuggled to the mountain surface
+// Precision Vantage Survey Trail Line (Chromatic Lime Active Track)
 function SurfaceTrail({ curvePoints }) {
   const { ribbonGeom, haloGeom } = useMemo(() => {
     const curve = new THREE.CatmullRomCurve3(curvePoints);
-    const tube = new THREE.TubeGeometry(curve, 220, 0.10, 8, false);
-    const halo = new THREE.TubeGeometry(curve, 220, 0.22, 8, false);
+    const tube = new THREE.TubeGeometry(curve, 220, 0.08, 8, false);
+    const halo = new THREE.TubeGeometry(curve, 220, 0.2, 8, false);
     return { ribbonGeom: tube, haloGeom: halo };
   }, [curvePoints]);
 
   return (
     <group>
-      {/* Core bright pink line */}
+      {/* Core active lime trail line */}
       <mesh geometry={ribbonGeom}>
-        <meshBasicMaterial color="#ff0080" />
+        <meshBasicMaterial color="#caff3c" />
       </mesh>
-      {/* Soft neon aura */}
+      {/* Subtle survey line radiance */}
       <mesh geometry={haloGeom}>
         <meshBasicMaterial
-          color="#ff1493"
+          color="#caff3c"
           transparent={true}
-          opacity={0.25}
+          opacity={0.2}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
@@ -136,52 +169,118 @@ function SurfaceTrail({ curvePoints }) {
   );
 }
 
-// Waypoint Marker & Labels matching the mockup
+// Lidar Airborne Survey Point Cloud along the ridge
+function LidarSurveyCloud() {
+  const points = useMemo(() => {
+    const count = 320;
+    const pos = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    const cLime = new THREE.Color("#caff3c");
+    const cSteel = new THREE.Color("#56789b");
+
+    for (let i = 0; i < count; i++) {
+      const t = Math.random();
+      // Interpolate along ridge spine from (-18, 14.5) to (14, -10.5)
+      const rx = -18 + t * (14 - (-18)) + (Math.random() - 0.5) * 6;
+      const rz = 14.5 + t * (-10.5 - 14.5) + (Math.random() - 0.5) * 6;
+      const groundY = getTerrainElevation(rx, rz);
+      const ry = groundY + 0.3 + Math.random() * 2.8;
+
+      pos[i * 3] = rx;
+      pos[i * 3 + 1] = ry;
+      pos[i * 3 + 2] = rz;
+
+      const col = Math.random() > 0.4 ? cSteel : cLime;
+      colors[i * 3] = col.r;
+      colors[i * 3 + 1] = col.g;
+      colors[i * 3 + 2] = col.b;
+    }
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    return geom;
+  }, []);
+
+  return (
+    <points geometry={points}>
+      <pointsMaterial
+        size={0.16}
+        vertexColors={true}
+        transparent={true}
+        opacity={0.65}
+        sizeAttenuation={true}
+      />
+    </points>
+  );
+}
+
+// Survey Station Waypoint Benchmark Marker & Labels
 function WaypointMarker({ waypoint, position, isSelected, onClick, index, total }) {
   const isSummit = index === total - 1;
-  const isBase = index === 0;
+  const prismRef = useRef();
+
+  useFrame((_, delta) => {
+    if (prismRef.current) {
+      prismRef.current.rotation.y += delta * (isSelected ? 1.8 : 0.6);
+    }
+  });
 
   return (
     <group position={position} onClick={onClick}>
-      {/* Surface glowing ring */}
+      {/* Benchmark survey target ring on terrain */}
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.35, 0.62, 32]} />
+        <ringGeometry args={[0.3, 0.52, 32]} />
         <meshBasicMaterial
-          color="#00f5ff"
+          color={isSelected ? "#caff3c" : "#4a5d73"}
           side={THREE.DoubleSide}
           transparent={true}
-          opacity={isSelected ? 0.95 : 0.65}
+          opacity={isSelected ? 0.95 : 0.45}
         />
       </mesh>
 
-      {/* Flag pole */}
-      <mesh position={[0, 0.5, 0]}>
-        <cylinderGeometry args={[0.025, 0.025, 0.95, 8]} />
-        <meshBasicMaterial color="#00f5ff" />
+      {/* Vertical survey rod / theodolite plumb mast */}
+      <mesh position={[0, 0.45, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.85, 8]} />
+        <meshBasicMaterial color={isSelected ? "#caff3c" : "#71859b"} />
       </mesh>
 
-      {/* Flag banner */}
-      <mesh position={[0.16, 0.85, 0]}>
-        <boxGeometry args={[0.28, 0.18, 0.015]} />
-        <meshBasicMaterial color="#00f5ff" />
+      {/* Rotating survey prism target */}
+      <mesh ref={prismRef} position={[0, 0.9, 0]}>
+        <octahedronGeometry args={[0.12, 0]} />
+        <meshBasicMaterial color={isSelected ? "#caff3c" : "#8aa0b5"} />
       </mesh>
 
-      {/* Radiant Summit Aura */}
-      {isSummit && (
-        <mesh position={[0, 1.25, 0]}>
-          <sphereGeometry args={[0.9, 16, 16]} />
+      {/* Active Station Vertical Laser Beam */}
+      {isSelected && (
+        <mesh position={[0, 2.5, 0]}>
+          <cylinderGeometry args={[0.015, 0.015, 3.2, 8]} />
           <meshBasicMaterial
-            color="#ff3399"
+            color="#caff3c"
             transparent={true}
-            opacity={0.45}
+            opacity={0.35}
             blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      )}
+
+      {/* Summit survey beacon */}
+      {isSummit && (
+        <mesh position={[0, 1.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.5, 0.65, 32]} />
+          <meshBasicMaterial
+            color="#caff3c"
+            side={THREE.DoubleSide}
+            transparent={true}
+            opacity={0.65}
           />
         </mesh>
       )}
 
       {/* Floating Waypoint Label Badge */}
       <Html
-        position={[0, isSelected ? 2.5 : 1.7, 0]}
+        position={[0, isSelected ? 2.5 : 1.6, 0]}
         center
         distanceFactor={28}
         zIndexRange={[100, 0]}
@@ -191,26 +290,27 @@ function WaypointMarker({ waypoint, position, isSelected, onClick, index, total 
             e.stopPropagation();
             onClick && onClick();
           }}
-          className="cursor-pointer select-none font-mono whitespace-nowrap transition-transform hover:scale-105"
+          className="cursor-pointer select-none whitespace-nowrap"
         >
           {isSelected ? (
-            /* Highlighted Active Waypoint Badge with downward pointer arrow */
+            /* Active Waypoint Badge */
             <div className="flex flex-col items-center">
-              <div className="px-3.5 py-1.5 rounded-lg bg-space-950/95 border-2 border-cyan-400 text-cyan-200 text-xs font-bold shadow-[0_0_22px_rgba(0,245,255,0.7)] flex items-center space-x-1.5">
-                <span className="text-cyan-400 font-extrabold">✕</span>
-                <span>{waypoint.company || waypoint.label}</span>
+              <div className="px-3 py-1.5 rounded instrument-panel border border-accent text-accent text-xs num flex items-center gap-2 ticks shadow-xl backdrop-blur-md">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" aria-hidden="true" />
+                <span className="font-semibold text-ink">{waypoint.company || waypoint.label}</span>
+                <span className="text-accent font-mono font-medium">▲ {waypoint.elevation}</span>
               </div>
-              <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-cyan-400 shadow-[0_0_10px_#00f5ff]" />
+              <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-accent" />
             </div>
           ) : (
-            /* Clean Pill Badge matching mockup */
-            <div className="px-2.5 py-0.5 rounded-md bg-space-950/90 border border-cyan-500/50 text-slate-200 text-[11px] shadow-sm flex items-center space-x-1 hover:border-cyan-400">
-              <span className="text-cyan-400 font-bold">
-                {String(index + 1).padStart(2, "0")}:
+            /* Inactive Waypoint Tag */
+            <div className="px-2.5 py-1 rounded instrument-panel border border-rule text-ink-2 text-xs num hover:border-accent hover:text-ink flex items-center gap-1.5 transition-colors duration-150 backdrop-blur-md">
+              <span className="text-muted text-[11px] font-mono">
+                {String(index + 1).padStart(2, "0")}
               </span>
-              <span>{waypoint.label || waypoint.role}</span>
-              <span className="text-[10px] text-slate-400">
-                ({waypoint.elevation})
+              <span className="font-medium">{waypoint.company ? waypoint.company : waypoint.label}</span>
+              <span className="text-accent/90 text-[11px] font-mono">
+                {waypoint.elevation}
               </span>
             </div>
           )}
@@ -218,6 +318,37 @@ function WaypointMarker({ waypoint, position, isSelected, onClick, index, total 
       </Html>
     </group>
   );
+}
+
+// Camera tracking rig smoothly framing active waypoint
+function CameraRig({ activePosition, activeIndex }) {
+  const targetLook = useRef(new THREE.Vector3(0.5, 9.0, -2));
+
+  useFrame(({ camera }) => {
+    const [ax, ay, az] = activePosition;
+    const progress = Math.min(1, Math.max(0, ay / 18.5));
+
+    // Dynamic camera position adjusting elevation with waypoint climb
+    const desiredCamX = -10 + progress * 3;
+    const desiredCamY = 13 + progress * 5;
+    const desiredCamZ = 42 - progress * 8;
+
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, desiredCamX, 0.04);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, desiredCamY, 0.04);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, desiredCamZ, 0.04);
+
+    const desiredLookX = ax * 0.35 + 1.5;
+    const desiredLookY = ay * 0.45 + 5.5;
+    const desiredLookZ = az * 0.35 - 2;
+
+    targetLook.current.x = THREE.MathUtils.lerp(targetLook.current.x, desiredLookX, 0.04);
+    targetLook.current.y = THREE.MathUtils.lerp(targetLook.current.y, desiredLookY, 0.04);
+    targetLook.current.z = THREE.MathUtils.lerp(targetLook.current.z, desiredLookZ, 0.04);
+
+    camera.lookAt(targetLook.current);
+  });
+
+  return null;
 }
 
 export default function MountainScene({
@@ -245,9 +376,7 @@ export default function MountainScene({
     ]);
   }, [waypointAnchors]);
 
-  // Construct serpentine S-curve trail that hugs the mountain surface
-  // Between each waypoint pair, the trail gently swings ±1.5-2.0 units
-  // in z (perpendicular to the slope direction) to create visible switchbacks
+  // Construct serpentine S-curve trail hugging the mountain surface
   const curvePoints = useMemo(() => {
     const baseSpline = [
       // 01: Base Camp
@@ -255,7 +384,7 @@ export default function MountainScene({
       new THREE.Vector3(-16.5, 0, 13.0),
       new THREE.Vector3(-15.0, 0, 12.5),
 
-      // S-curve between 01→02: swing toward viewer (+z) then back (-z)
+      // S-curve between 01→02
       new THREE.Vector3(-13.8, 0, 12.0),
       new THREE.Vector3(-12.5, 0, 10.0),
       new THREE.Vector3(-11.5, 0, 9.5),
@@ -263,7 +392,7 @@ export default function MountainScene({
       // 02: Early Route
       new THREE.Vector3(-10.5, 0, 8.5),
 
-      // S-curve between 02→03: swing away (-z) then toward viewer (+z)
+      // S-curve between 02→03
       new THREE.Vector3(-9.2, 0, 7.0),
       new THREE.Vector3(-7.8, 0, 5.0),
       new THREE.Vector3(-6.2, 0, 5.8),
@@ -273,7 +402,7 @@ export default function MountainScene({
       // 03: Camp 1
       new THREE.Vector3(-2.5, 0, 4.5),
 
-      // S-curve between 03→04: swing toward viewer (+z) then away (-z)
+      // S-curve between 03→04
       new THREE.Vector3(-1.5, 0, 3.8),
       new THREE.Vector3(-0.2, 0, 2.5),
       new THREE.Vector3(0.8, 0, 1.0),
@@ -284,7 +413,7 @@ export default function MountainScene({
       // 04: DBS Singapore
       new THREE.Vector3(4.2, 0, -2.8),
 
-      // S-curve between 04→05: swing away (-z) then toward viewer (+z)
+      // S-curve between 04→05
       new THREE.Vector3(5.0, 0, -3.5),
       new THREE.Vector3(5.8, 0, -5.0),
       new THREE.Vector3(6.8, 0, -6.2),
@@ -295,7 +424,7 @@ export default function MountainScene({
       // 05: AI & Exploration
       new THREE.Vector3(9.2, 0, -7.2),
 
-      // S-curve between 05→06: swing toward viewer (+z) then to summit
+      // S-curve between 05→06
       new THREE.Vector3(10.0, 0, -7.5),
       new THREE.Vector3(10.8, 0, -8.0),
       new THREE.Vector3(11.8, 0, -9.0),
@@ -309,36 +438,41 @@ export default function MountainScene({
     const spline = new THREE.CatmullRomCurve3(baseSpline);
     const sampled = spline.getPoints(200);
 
-    // Clamp every sampled point directly onto the mountain terrain surface
     return sampled.map((pt) => {
       const y = getTerrainElevation(pt.x, pt.z) + 0.18;
       return new THREE.Vector3(pt.x, y, pt.z);
     });
   }, []);
 
+  const activePos = waypointPositions[activeWaypointIndex] || [0, 5, 0];
+
   return (
     <Canvas
-      camera={{ position: [-8, 15, 46], fov: 38 }}
-      style={{ width: "100%", height: "100%", background: "#050a14" }}
+      camera={{ position: [-10, 13, 42], fov: 38 }}
+      style={{ width: "100%", height: "100%", background: "#080c14" }}
       gl={{ antialias: true, alpha: true }}
-      onCreated={({ camera }) => {
-        camera.lookAt(0.5, 9.0, -2);
-      }}
     >
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[-15, 30, 20]} intensity={1.6} color="#00f5ff" />
-      <pointLight position={[3, 11, -1]} intensity={1.2} color="#ff0080" distance={22} />
+      <ambientLight intensity={0.55} color="#141d2a" />
+      <directionalLight position={[-18, 32, 22]} intensity={1.4} color="#d8e7f8" />
+      <directionalLight position={[20, 10, -15]} intensity={0.8} color="#385270" />
+      <pointLight position={[activePos[0], activePos[1] + 1.5, activePos[2]]} intensity={1.2} color="#caff3c" distance={16} />
 
-      {/* Starry Night Sky */}
-      <Stars radius={70} depth={40} count={2200} factor={3.5} saturation={0.5} fade />
+      {/* Subtle stellar field */}
+      <Stars radius={70} depth={40} count={1200} factor={2.2} saturation={0} fade />
 
-      {/* Mountain Terrain Wireframe */}
+      {/* Camera Tracking Rig */}
+      <CameraRig activePosition={activePos} activeIndex={activeWaypointIndex} />
+
+      {/* Topographic Terrain Wireframe & Body */}
       <TerrainMesh />
 
-      {/* Curving Glowing Trail hugging the terrain */}
+      {/* Lidar Ridge Survey Particles */}
+      <LidarSurveyCloud />
+
+      {/* Chromatic Lime Survey Trail Line */}
       <SurfaceTrail curvePoints={curvePoints} />
 
-      {/* Waypoint Markers & Mockup Badges */}
+      {/* Waypoint Station Benchmark Markers & Badges */}
       {careerTrail.map((wp, index) => {
         const pos = waypointPositions[index] || [0, 0, 0];
         return (

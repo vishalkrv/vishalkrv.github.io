@@ -7,12 +7,16 @@ export default function GlobeVisual() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
     let animationFrameId;
 
     let width = (canvas.width = canvas.parentElement.offsetWidth || 300);
-    let height = (canvas.height = canvas.parentElement.offsetHeight || 180);
+    let height = (canvas.height = canvas.parentElement.offsetHeight || 176);
 
-    const radius = Math.min(width, height) * 0.38;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const radius = Math.min(width, height) * 0.36;
     const centerX = width * 0.55;
     const centerY = height * 0.5;
 
@@ -20,35 +24,18 @@ export default function GlobeVisual() {
 
     // GPS Trail Points on globe
     const trailPoints = [
-      { lat: 1.35, lon: 103.82, label: "Singapore" },
-      { lat: 28.61, lon: 77.2, label: "Delhi" },
-      { lat: 37.77, lon: -122.41, label: "SF" },
-      { lat: 51.5, lon: -0.12, label: "London" },
+      { lat: 1.35, lon: 103.82, label: "Singapore", isPrimary: true },
+      { lat: 28.61, lon: 77.2, label: "Delhi", isPrimary: false },
+      { lat: 37.77, lon: -122.41, label: "SF", isPrimary: false },
+      { lat: 51.5, lon: -0.12, label: "London", isPrimary: false },
     ];
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Globe sphere glow
-      const radial = ctx.createRadialGradient(
-        centerX,
-        centerY,
-        radius * 0.2,
-        centerX,
-        centerY,
-        radius * 1.2
-      );
-      radial.addColorStop(0, "rgba(0, 245, 255, 0.15)");
-      radial.addColorStop(0.8, "rgba(121, 40, 202, 0.2)");
-      radial.addColorStop(1, "transparent");
-      ctx.fillStyle = radial;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius * 1.1, 0, Math.PI * 2);
-      ctx.fill();
-
       // Outer wireframe ring
-      ctx.strokeStyle = "rgba(0, 245, 255, 0.4)";
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(180, 195, 210, 0.25)";
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       ctx.stroke();
@@ -58,7 +45,7 @@ export default function GlobeVisual() {
         const curLon = lon + rotation;
         const xOffset = Math.sin(curLon) * radius;
 
-        ctx.strokeStyle = "rgba(0, 245, 255, 0.15)";
+        ctx.strokeStyle = "rgba(180, 195, 210, 0.12)";
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.ellipse(
@@ -77,14 +64,14 @@ export default function GlobeVisual() {
       for (let lat = -0.7; lat <= 0.7; lat += 0.35) {
         const y = centerY + lat * radius;
         const rLat = Math.cos(lat) * radius;
-        ctx.strokeStyle = "rgba(168, 85, 247, 0.2)";
+        ctx.strokeStyle = "rgba(180, 195, 210, 0.1)";
         ctx.beginPath();
         ctx.ellipse(centerX, y, rLat, rLat * 0.25, 0, 0, Math.PI * 2);
         ctx.stroke();
       }
 
-      // GPS Pulsing Markers
-      trailPoints.forEach((pt, i) => {
+      // GPS Markers
+      trailPoints.forEach((pt) => {
         const phi = (pt.lat * Math.PI) / 180;
         const theta = (pt.lon * Math.PI) / 180 + rotation;
 
@@ -93,33 +80,46 @@ export default function GlobeVisual() {
           const x = centerX + radius * Math.cos(phi) * Math.sin(theta);
           const y = centerY - radius * Math.sin(phi);
 
-          // Pulsing pin
-          ctx.fillStyle = i === 0 ? "#00f5ff" : "#ff0080";
-          ctx.shadowColor = i === 0 ? "#00f5ff" : "#ff0080";
-          ctx.shadowBlur = 8;
-          ctx.beginPath();
-          ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.shadowBlur = 0;
+          if (pt.isPrimary) {
+            // Vantage chromatic lime marker
+            ctx.fillStyle = "rgba(202, 255, 60, 0.95)";
+            ctx.beginPath();
+            ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "rgba(202, 255, 60, 0.4)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = "rgba(180, 195, 210, 0.5)";
+            ctx.beginPath();
+            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       });
 
-      rotation += 0.008;
-      animationFrameId = requestAnimationFrame(render);
+      if (!prefersReducedMotion) {
+        rotation += 0.006;
+        animationFrameId = requestAnimationFrame(render);
+      }
     };
 
     render();
 
-    return () => cancelAnimationFrame(animationFrameId);
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   return (
-    <div className="w-full h-44 relative overflow-hidden rounded-lg bg-space-950/60 border border-slate-800">
-      <canvas ref={canvasRef} className="w-full h-full" />
-      <div className="absolute top-2 left-2 text-[9px] font-mono text-cyan-400 bg-space-900/80 px-2 py-0.5 rounded border border-cyan-500/30">
-        GPS: 1.3521° N, 103.8198° E
+    <div className="w-full h-44 relative overflow-hidden rounded bg-paper border border-rule flex items-center justify-center">
+      <canvas ref={canvasRef} aria-hidden="true" className="w-full h-full" />
+      <div className="absolute top-2 left-2 text-xs text-muted num bg-paper-2/90 px-2 py-0.5 rounded border border-rule">
+        GPS 1.3521° N, 103.8198° E
       </div>
     </div>
   );
 }
-

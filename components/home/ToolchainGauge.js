@@ -37,15 +37,18 @@ export default function ToolchainGauge() {
   const [hoveredTool, setHoveredTool] = useState(null);
 
   return (
-    <div className="w-full max-w-5xl mx-auto my-12 px-4">
-      <div className="text-center mb-3">
-        <span className="text-[11px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
-          MY DIGITAL TOOLCHAIN / OUTDOOR GEAR
+    <section className="w-full max-w-6xl mx-auto px-6 py-16" style={{ marginTop: "var(--section-gap)", marginBottom: "var(--section-gap)" }}>
+      <div className="flex items-baseline justify-between mb-8 border-b border-rule pb-3">
+        <h2 className="font-light text-ink tracking-tight" style={{ fontSize: "var(--text-section)" }}>
+          Digital toolchain
+        </h2>
+        <span className="text-xs text-muted num">
+          13 engineering instruments
         </span>
       </div>
 
-      <div className="glass-panel rounded-2xl p-4 sm:p-5 border border-cyan-500/25 shadow-hud-card overflow-x-auto">
-        <div className="flex items-center justify-between min-w-[700px] gap-3">
+      <div className="instrument-panel ticks p-4 sm:p-6 overflow-x-auto">
+        <div className="flex items-center justify-between min-w-[700px] gap-2">
           {digitalToolchain.map((tool) => {
             const IconComponent = iconMap[tool.iconName] || SiReact;
             const isHovered = hoveredTool === tool.key;
@@ -55,39 +58,41 @@ export default function ToolchainGauge() {
                 key={tool.key}
                 onMouseEnter={() => setHoveredTool(tool.key)}
                 onMouseLeave={() => setHoveredTool(null)}
-                className="flex-1 flex flex-col items-center group cursor-pointer p-2 rounded-xl transition-all hover:bg-space-900/60"
+                className="flex-1 flex flex-col items-center p-2 rounded transition-colors duration-150 hover:bg-paper-3 cursor-pointer group"
               >
                 {/* Tech Icon */}
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 mb-2 relative"
+                  className="w-10 h-10 rounded flex items-center justify-center mb-2.5 transition-colors duration-150 border"
                   style={{
-                    backgroundColor: isHovered ? "rgba(0, 245, 255, 0.1)" : "rgba(13, 8, 36, 0.5)",
-                    border: `1px solid ${isHovered ? tool.color : "rgba(255, 255, 255, 0.08)"}`,
-                    boxShadow: isHovered ? `0 0 15px ${tool.color}66` : "none",
+                    backgroundColor: isHovered ? "var(--color-paper)" : "var(--color-paper-3)",
+                    borderColor: isHovered ? "var(--color-accent)" : "var(--color-rule)",
                   }}
                 >
                   <IconComponent
-                    className="w-5 h-5 transition-colors"
-                    style={{ color: tool.color }}
+                    className="w-5 h-5 transition-colors duration-150"
+                    style={{ color: isHovered ? "var(--color-accent)" : "var(--color-ink-2)" }}
+                    aria-hidden="true"
                   />
                 </div>
 
                 {/* Mini Sparkline Gauge */}
-                <div className="w-full h-4 flex items-end space-x-0.5 px-1">
+                <div className="w-full h-5 flex items-end gap-0.5 px-1 bg-paper/60 rounded-sm p-0.5 border border-rule/50">
                   {tool.gauge.map((val, i) => (
                     <div
                       key={i}
-                      className="flex-1 rounded-t transition-all duration-300"
+                      className="flex-1 rounded-none transition-transform duration-200"
                       style={{
-                        height: `${(val / 100) * 100}%`,
-                        backgroundColor: isHovered ? tool.color : "rgba(0, 245, 255, 0.35)",
+                        height: "100%",
+                        transform: `scaleY(${val / 100})`,
+                        transformOrigin: "bottom",
+                        backgroundColor: isHovered ? "var(--color-accent)" : "var(--color-rule-2)",
                       }}
                     />
                   ))}
                 </div>
 
                 {/* Tech Label */}
-                <span className="text-[10px] font-mono text-slate-400 mt-1.5 truncate group-hover:text-cyan-300 transition-colors">
+                <span className="text-xs text-muted mt-2 truncate group-hover:text-ink transition-colors duration-150">
                   {tool.name}
                 </span>
               </div>
@@ -95,7 +100,6 @@ export default function ToolchainGauge() {
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
-
